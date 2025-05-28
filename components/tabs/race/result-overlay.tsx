@@ -1,0 +1,55 @@
+import { TrendingUp, TrendingDown } from "lucide-react"
+import type { RefObject } from "react"
+
+interface ResultOverlayProps {
+  resultOverlayRef: RefObject<HTMLDivElement>
+  predictionResult: "correct" | "wrong" | null
+  priceBeforePrediction: string
+  priceAfterPrediction: string
+  predictionAction: "pump" | "dump" | null
+}
+
+export function ResultOverlay({
+  resultOverlayRef,
+  predictionResult,
+  priceBeforePrediction,
+  priceAfterPrediction,
+  predictionAction,
+}: ResultOverlayProps) {
+  return (
+    <div
+      ref={resultOverlayRef}
+      className="fixed inset-0 bg-black/90 flex items-center justify-center z-90 result-overlay"
+    >
+      <div className="text-center p-8 max-w-md">
+        {/* Title - Win or Lose */}
+        <h2 className={`text-4xl font-bold mb-4 ${predictionResult === "correct" ? "text-green-400" : "text-red-500"}`}>
+          {predictionResult === "correct" ? "WIN!" : "LOSE!"}
+        </h2>
+
+        {/* Price Change */}
+        <div className="mb-6">
+          <p className="text-white/70 mb-2">SOL Price Change</p>
+          <div className="flex items-center justify-center gap-2">
+            <span className="text-white">{priceBeforePrediction}</span>
+            <span className="mx-2">
+              {predictionAction === "pump" ? (
+                <TrendingUp className="text-green-400" />
+              ) : (
+                <TrendingDown className="text-red-400" />
+              )}
+            </span>
+            <span className="text-white">{priceAfterPrediction}</span>
+          </div>
+        </div>
+
+        {/* Points */}
+        {predictionResult === "correct" && (
+          <div className="bg-green-400/20 rounded-lg p-4 animate-pulse">
+            <p className="text-white text-lg">+100 POINTS</p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}

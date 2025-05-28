@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 4%;
+  --card-foreground: 0 0% 100%;
+  --popover: 0 0% 4%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 272 100% 64%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 162 100% 51%;
+  --secondary-foreground: 0 0% 0%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 65%;
+  --accent: 0 0% 15%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 100% 50%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 20%;
+  --input: 0 0% 20%;
+  --ring: 272 100% 64%;
+  --radius: 0.5rem;
+
+  --chart-1: 272 100% 64%;
+  --chart-2: 162 100% 51%;
+  --chart-3: 217 91% 60%;
+  --chart-4: 47 100% 50%;
+  --chart-5: 0 100% 50%;
+}
+
+body {
+  @apply bg-black text-white;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+body {
+  @apply bg-black text-white;
+  height: 100vh;
+  position: fixed;
+  width: 100%;
+  overflow: hidden;
+}
+
+html {
+  overflow: hidden;
+}
+
+/* Cập nhật bottom-nav để liền với màn hình */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  background-color: black;
+}
+
+/* Thêm class mới cho modal */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100000;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  pointer-events: none;
+}
+
+.modal-content {
+  pointer-events: auto;
+  position: relative;
+  max-height: 80vh;
+  overflow-y: auto;
+  width: 100%;
+  max-width: 28rem;
+}
