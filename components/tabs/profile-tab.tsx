@@ -7,7 +7,7 @@ import { Trophy, Star, Settings, Palette } from "lucide-react"
 import { BadgeGrid } from "@/components/badge-grid"
 import { BadgeFrameGrid } from "@/components/badge-frame-grid"
 import { AvatarWithFrame } from "@/components/avatar-with-frame"
-import { BADGES, getNextBadge } from "@/utils/badge-system"
+import { BADGES, getNextBadge, getBadgeRarityColor } from "@/utils/badge-system"
 import {
   BADGE_FRAMES,
   getBadgeFrameProgress,
@@ -50,22 +50,21 @@ export default function ProfileTab({
   const progressToNextFrame = nextFrame ? Math.min((points / nextFrame.pointsRequired) * 100, 100) : 100
 
   return (
-    <div className="w-full h-full overflow-y-auto p-4 pt-8 pb-24" style={{ overflowX: "hidden" }}>
+    <div className="w-full h-full overflow-y-auto p-4 pt-4 pb-15" style={{ overflowX: "hidden" }}>
       {/* Profile Header */}
       <div className="flex flex-col items-center mb-6">
         <AvatarWithFrame
           src={context?.user?.pfpUrl || "/placeholder.svg"}
           alt="User avatar"
-          fallback="SR"
           size="xl"
           badgeFrame={selectedFrame}
-          className="border-4 border-purple-500 rounded-full"
+          className="rounded-full"
         />
-        <h2 className="text-2xl font-bold mt-4">
+        <h2 className="text-2xl font-bold">
           {context?.user?.displayName || "N/A"}
-          {context?.user?.fid && <span className="text-lg text-zinc-400 ml-2">#{context.user.fid}</span>}
+          {/* {context?.user?.fid && <span className="text-lg text-zinc-400 ml-2">#{context.user.fid}</span>} */}
         </h2>
-        {context?.user?.username && <p className="text-zinc-400 text-lg">@{context.user.username}</p>}
+        {/* {context?.user?.username && <p className="text-zinc-400 text-lg">@{context.user.username}</p>} */}
         <div className="flex items-center gap-2 mt-2">
           <span className="text-2xl">{currentLevel.icon}</span>
           <span className={`text-lg font-bold ${currentLevel.color}`}>
@@ -73,16 +72,26 @@ export default function ProfileTab({
           </span>
         </div>
 
-        <div className="flex items-center gap-2 mt-2">
-          <div className="bg-zinc-800 px-3 py-1 rounded-full text-xs flex items-center gap-1">
-            <Trophy className="w-3 h-3 text-yellow-400" />
-            <span>Top 5%</span>
+        {/* Badges - Hiển thị chỉ ảnh theo hàng ngang */}
+        {unlockedBadges.length > 0 && (
+          <div className="flex items-center gap-3 mt-3 justify-center">
+            {unlockedBadges.slice(0, 5).map((badge) => (
+              <div 
+                key={badge.id}
+                className={`w-8 h-8 rounded-full overflow-hidden`}
+                title={`${badge.name}: ${badge.description}`}
+              >
+                <img src={badge.icon} alt={badge.name} className="w-full h-full object-cover" />
+              </div>
+            ))}
+            {unlockedBadges.length > 5 && (
+              <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-medium"
+                   title="More badges available">
+                +{unlockedBadges.length - 5}
+              </div>
+            )}
           </div>
-          <div className="bg-zinc-800 px-3 py-1 rounded-full text-xs flex items-center gap-1">
-            <Star className="w-3 h-3 text-purple-400" />
-            <span>Pro Racer</span>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Level Progress */}
@@ -214,7 +223,7 @@ export default function ProfileTab({
       </Card>
 
       {/* Team Section */}
-      <Card className="bg-zinc-900 border-0 p-4">
+      {/* <Card className="bg-zinc-900 border-0 p-4">
         <h3 className="font-medium mb-4">Team</h3>
 
         <div className="flex items-center gap-4">
@@ -231,7 +240,7 @@ export default function ProfileTab({
             View
           </Button>
         </div>
-      </Card>
+      </Card> */}
 
       {/* Farcaster Context */}
       <FarcasterInfoCard />

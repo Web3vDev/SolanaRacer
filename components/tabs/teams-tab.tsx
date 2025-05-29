@@ -720,9 +720,9 @@ export default function TeamsTab({ onRaceStateChange }: TeamsTabProps) {
 
   // Track selection interface
   return (
-    <div className="flex flex-col w-full h-full p-4 pt-8 pb-20">
+    <div className="flex flex-col w-full h-full p-4 pt-4 pb-15">
       <h2 className="text-2xl font-bold text-center mb-2">Race Tracks</h2>
-      <p className="text-center text-zinc-400 text-sm mb-6">Choose your track and race against opponents!</p>
+      <p className="text-center text-zinc-400 text-sm mb-2">Choose your track and race against opponents!</p>
 
       <div className="space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
         {raceTracks.map((track) => (

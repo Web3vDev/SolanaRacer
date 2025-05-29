@@ -28,17 +28,27 @@ interface UserDetailModalProps {
 export function UserDetailModal({ user, onClose }: UserDetailModalProps) {
   const [mounted, setMounted] = useState(false)
 
+  // Xử lý phím Escape để đóng modal
   useEffect(() => {
-    setMounted(true)
+    const handleEscapeKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    setMounted(true);
     // Prevent body scroll when modal is open
-    document.body.style.overflow = "hidden"
+    document.body.style.overflow = "hidden";
+    // Thêm event listener cho phím Escape
+    document.addEventListener('keydown', handleEscapeKey);
 
     return () => {
-      document.body.style.overflow = "unset"
-    }
-  }, [])
+      document.body.style.overflow = "unset";
+      document.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [onClose]);
 
-  if (!mounted) return null
+  if (!mounted) return null;
 
   // Get user data with fallbacks
   const currentLevel = getCurrentLevel(user.points)
@@ -46,28 +56,52 @@ export function UserDetailModal({ user, onClose }: UserDetailModalProps) {
   const unlockedFrames = getBadgeFrameProgress(user.points) || []
   const currentFrame = getCurrentBadgeFrame(user.points)
 
+  // Xử lý đóng modal khi click ra ngoài
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  // Xử lý đóng modal khi click nút X
+  const handleCloseClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onClose();
+  };
+
   const modalContent = (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-zinc-900 rounded-lg w-full max-w-md max-h-[90vh] overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-zinc-700">
+    <div 
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onClick={handleBackdropClick}
+    >
+      {/* Modal container với kích thước cố định và scroll riêng */}
+      <div 
+        className="bg-zinc-900 rounded-lg w-full max-w-md h-[80vh] flex flex-col overflow-hidden" 
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header - Cố định */}
+        <div className="flex items-center justify-between p-4 border-b border-zinc-700 bg-zinc-900 z-10">
           <h2 className="text-lg font-bold">Player Profile</h2>
-          <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0">
+          <button
+            onClick={handleCloseClick}
+            className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            aria-label="Close modal"
+          >
             <X className="w-4 h-4" />
-          </Button>
+          </button>
         </div>
 
-        {/* Content */}
-        <div className="overflow-y-auto max-h-[calc(90vh-80px)] p-4">
+        {/* Content - Có thể cuộn */}
+        <div className="flex-1 overflow-y-auto p-4" style={{ WebkitOverflowScrolling: 'touch' }}>
           {/* Profile Header */}
           <div className="flex flex-col items-center mb-6">
             <AvatarWithFrame
               src={user.avatar || "/placeholder.svg"}
               alt={user.name}
-              fallback={user.name.slice(0, 2)}
               size="xl"
               badgeFrame={currentFrame}
-              className="border-4 border-purple-500 rounded-full"
+              className="rounded-full"
             />
             <h3 className="text-xl font-bold mt-4">{user.name}</h3>
             <div className="flex items-center gap-2 mt-2">

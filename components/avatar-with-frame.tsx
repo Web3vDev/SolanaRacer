@@ -25,22 +25,25 @@ export function AvatarWithFrame({
     sm: "w-12 h-12",
     md: "w-16 h-16",
     lg: "w-24 h-24",
-    xl: "w-32 h-32",
+    xl: "w-24 h-24",
   }
 
   const frameSize = sizeClasses[size]
 
-  return (
-    <div className={`relative ${frameSize} ${className}`}>
-      {/* Avatar */}
-      <Avatar className={`${frameSize} relative z-10`}>
-        <AvatarImage src={src || "/placeholder.svg"} alt={alt} />
-        <AvatarFallback>{fallback}</AvatarFallback>
-      </Avatar>
+  // Kích thước riêng cho avatar và frame
+  const avatarSize = frameSize;
+  const frameOverlaySize = {
+    sm: "w-14 h-14",
+    md: "w-20 h-20",
+    lg: "w-28 h-28",
+    xl: "w-36 h-36",
+  }[size];
 
-      {/* Badge Frame Overlay */}
+  return (
+    <div className={`relative flex items-center justify-center ${frameOverlaySize} ${className}`}> 
+      {/* Frame overlay to hơn avatar */}
       {badgeFrame && (
-        <div className={`absolute inset-0 ${frameSize} z-20 pointer-events-none`}>
+        <div className={`absolute flex items-center justify-center ${frameOverlaySize} z-20 pointer-events-none`}>
           <Image
             src={badgeFrame.icon || "/placeholder.svg"}
             alt={badgeFrame.name}
@@ -50,6 +53,13 @@ export function AvatarWithFrame({
           />
         </div>
       )}
+      {/* Avatar nhỏ hơn, nằm dưới */}
+      <div className={`absolute flex items-center justify-center ${avatarSize} z-10`}>
+        <Avatar className={`${avatarSize}`}>
+          <AvatarImage src={src || "/placeholder.svg"} alt={alt} />
+          <AvatarFallback>{fallback}</AvatarFallback>
+        </Avatar>
+      </div>
     </div>
   )
 }

@@ -139,7 +139,9 @@ export default function LeaderboardTab({ userPoints = 0 }: LeaderboardTabProps) 
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className={`font-medium ${isCurrentUser ? "text-white font-bold" : ""}`}>
-                      {player.display_name}
+                      {player.display_name.length > 6 
+                        ? `${player.display_name.slice(0, 6)}...` 
+                        : player.display_name}
                       {isCurrentUser && " (You)"}
                     </h3>
                     {/* Level display */}

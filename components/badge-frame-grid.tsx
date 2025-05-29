@@ -56,14 +56,10 @@ export function BadgeFrameGrid({
           >
             {/* Frame Preview with Avatar */}
             <div className="relative w-full h-full">
-              {/* Sample Avatar */}
-              <div className="absolute inset-2 rounded-full bg-gradient-to-br from-purple-500 to-green-400 flex items-center justify-center">
-                <span className="text-white font-bold text-xs">SR</span>
-              </div>
 
               {/* Frame Overlay */}
               <Image
-                src={frame.icon || "/placeholder.svg"}
+                src={frame.icon || ""}
                 alt={frame.name}
                 fill
                 className={`object-contain transition-all duration-300 ${
