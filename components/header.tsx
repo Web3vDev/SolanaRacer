@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { Volume2, VolumeX, Wallet } from "lucide-react"
+import { Volume2, VolumeX } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { SolanaWalletConnector } from "@/components/shared/SolanaWalletConnector"
 // Import sound functions
 import { isSoundEnabled, playSound } from "@/lib/sound-manager"
 
@@ -19,32 +20,20 @@ export function Header({ currentTab = "home", showUpgradesModal = false }: Heade
     }
     return false
   })
-  const [isWalletConnected, setIsWalletConnected] = useState(false)
-  const [showWalletAddress, setShowWalletAddress] = useState(false)
+  // Wallet connection is now handled by SolanaWalletConnector
 
   // Update the toggleSound function
-  const toggleSound = async () => {
-    const newState = toggleSound()
+  const toggleSound = () => {
+    const newState = !isSoundOn
     setIsSoundOn(newState)
 
     // Play a sound to test the new state
     if (newState) {
-      await playSound("nav")
+      playSound("nav")
     }
   }
 
-  const connectWallet = () => {
-    if (!isWalletConnected) {
-      // Wallet connection logic would go here
-      console.log("Connecting wallet...")
-      setIsWalletConnected(true)
-    } else {
-      // Toggle wallet address display
-      setShowWalletAddress(!showWalletAddress)
-    }
-  }
-
-  const mockWalletAddress = "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU"
+  // Wallet connection is now handled by SolanaWalletConnector component
 
   // Ẩn header khi upgrades modal đang mở hoặc ở tab leaderboard
   if (showUpgradesModal || currentTab === "leaderboard") {
@@ -71,19 +60,9 @@ export function Header({ currentTab = "home", showUpgradesModal = false }: Heade
 
       {/* Wallet connect button - only show on home tab */}
       {currentTab === "home" && (
-        <Button
-          onClick={connectWallet}
-          className={`absolute right-0 top-4 h-10 bg-gradient-to-r from-zinc-900 to-zinc-800 hover:from-zinc-800 hover:to-zinc-700 text-white text-xs font-medium rounded-l-full rounded-r-none border border-zinc-700 flex items-center gap-1.5 transition-all duration-300 ${
-            isWalletConnected && !showWalletAddress ? "pr-3 pl-3" : "pr-4 pl-3"
-          }`}
-        >
-          <Wallet className="h-3.5 w-3.5" />
-          {!isWalletConnected
-            ? "Connect Wallet"
-            : showWalletAddress
-              ? `${mockWalletAddress.slice(0, 4)}...${mockWalletAddress.slice(-4)}`
-              : null}
-        </Button>
+        <div className="absolute right-0 top-4">
+          <SolanaWalletConnector />
+        </div>
       )}
     </header>
   )
