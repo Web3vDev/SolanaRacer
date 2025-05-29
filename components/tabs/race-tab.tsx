@@ -219,15 +219,53 @@ export default function RaceTab({ onDataUpdate, showUpgradesModal, setShowUpgrad
           setPoints(gameData.points)
           setWinStreak(gameData.winStreak)
           setTotalRaces(gameData.totalRaces)
-          setPredictionsRemaining(gameData.predictionsRemaining)
           setMaxPredictions(gameData.maxPredictions)
           setBaseSuccessRate(gameData.baseSuccessRate)
-          setLastPredictionTime(gameData.lastPredictionTime)
           setDoublePointsActive(gameData.doublePointsActive)
           setDoublePointsEndTime(gameData.doublePointsEndTime)
           setUpgrades(gameData.upgrades)
           setCars(gameData.cars)
           setItems(gameData.items)
+          
+          // Calculate energy recovery since last prediction time
+          if (gameData.lastPredictionTime) {
+            const lastPredTime = gameData.lastPredictionTime;
+            const currentTime = Date.now();
+            const timeSinceLastPrediction = currentTime - lastPredTime;
+            
+            // Only process if it's been more than a minute since last prediction
+            if (timeSinceLastPrediction > 60000) {
+              console.log(`[Energy] Time since last prediction: ${Math.floor(timeSinceLastPrediction / 60000)} minutes`);
+              
+              // Calculate how many energy points should have been recovered
+              const baseRecoveryTime = 10 * 60 * 1000; // 10 minutes base
+              const speedBonus = getRecoverySpeed(gameData.upgrades);
+              const actualRecoveryTime = baseRecoveryTime * (1 - speedBonus / 100);
+              
+              // Calculate number of energy points to restore
+              const energyToRestore = Math.floor(timeSinceLastPrediction / actualRecoveryTime);
+              console.log(`[Energy] Energy to restore: ${energyToRestore} (recovery time: ${Math.floor(actualRecoveryTime / 60000)} minutes)`);
+              
+              if (energyToRestore > 0) {
+                const maxEnergy = getMaxEnergy(gameData.upgrades);
+                const newEnergy = Math.min(gameData.predictionsRemaining + energyToRestore, maxEnergy);
+                console.log(`[Energy] Updating energy from ${gameData.predictionsRemaining} to ${newEnergy}`);
+                setPredictionsRemaining(newEnergy);
+              } else {
+                // No energy recovery needed, use the stored value
+                setPredictionsRemaining(gameData.predictionsRemaining);
+              }
+            } else {
+              // Less than a minute has passed, use stored value
+              setPredictionsRemaining(gameData.predictionsRemaining);
+            }
+          } else {
+            // No lastPredictionTime available, use stored value
+            setPredictionsRemaining(gameData.predictionsRemaining);
+          }
+          
+          // Must set this after energy calculations
+          setLastPredictionTime(gameData.lastPredictionTime)
         } else {
           console.log("No game data loaded, using defaults")
         }
