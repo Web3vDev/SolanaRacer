@@ -155,12 +155,12 @@ export default function RaceTab({ onDataUpdate, showUpgradesModal, setShowUpgrad
   ])
 
   // Refs
-  const prevDisplayPriceRef = useRef("205.000")
-  const spinTimeouts = useRef([])
-  const speedTimeoutRef = useRef(null)
-  // Using MutableRefObject instead of RefObject to fix type compatibility
+  const prevDisplayPriceRef = useRef<string>("205.000")
+  const spinTimeouts = useRef<NodeJS.Timeout[]>([])
+  const speedTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
   const resultOverlayRef = useRef<HTMLDivElement>(null) as React.MutableRefObject<HTMLDivElement>
-  const countdownIntervalRef = useRef(null)
+  const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const priceUnsubscribeRef = useRef<(() => void) | null>(null)
 
   // State variables for price updates
@@ -425,7 +425,7 @@ export default function RaceTab({ onDataUpdate, showUpgradesModal, setShowUpgrad
   }, [])
 
   // Function to render a single digit slot
-  const renderDigitSlot = (digit, index) => {
+  const renderDigitSlot = (digit: string, index: number) => {
     return (
       <DigitSlot
         key={index}
@@ -481,7 +481,10 @@ export default function RaceTab({ onDataUpdate, showUpgradesModal, setShowUpgrad
       countdownIntervalRef.current = setInterval(() => {
         setCountdownTime((prev) => {
           if (prev <= 1) {
-            clearInterval(countdownIntervalRef.current)
+            if (countdownIntervalRef.current) {
+              clearInterval(countdownIntervalRef.current)
+              countdownIntervalRef.current = null
+            }
             return 0
           }
           return prev - 1
@@ -512,7 +515,7 @@ export default function RaceTab({ onDataUpdate, showUpgradesModal, setShowUpgrad
       setCarMovement(action)
 
       // Get the car container element and adjust its position for acceleration effect
-      const carContainer = document.querySelector(".car-container")
+      const carContainer = document.querySelector(".car-container") as HTMLElement | null
       if (carContainer) {
         // Move car up slightly during acceleration
         carContainer.style.bottom = "-680px"

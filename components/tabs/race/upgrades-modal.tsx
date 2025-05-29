@@ -253,22 +253,18 @@ export function UpgradesModal({
           </button>
 
           <div className="flex-1"></div>
-
-          <button className="text-white">
-            <MoreVertical className="w-6 h-6" />
-          </button>
         </div>
 
         {/* Points Card Dropdown */}
         <div className="p-4">
-          <Card className="bg-zinc-900 border border-zinc-700/50 rounded-xl p-4">
+          <Card className="bg-zinc-900 border border-zinc-700/50 rounded-xl p-3">
             <button
-              className="w-full flex justify-between items-center mb-2 focus:outline-none"
+              className="w-full flex justify-between items-center focus:outline-none"
               onClick={() => setPointsCardOpen((prev) => !prev)}
               aria-expanded={pointsCardOpen}
             >
               <div className="flex items-center gap-2">
-                <span className="text-zinc-400 text-sm">Available points: </span>
+                <span className="text-zinc-400 text-sm">Available $RACE points: </span>
                 <span className="text-white text-sm font-bold">{points.toLocaleString()}</span>
               </div>
               <ChevronLeft

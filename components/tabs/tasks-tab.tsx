@@ -1,11 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CheckCircle, Circle, ExternalLink, Clock, Trophy, Gift } from "lucide-react"
 import { TASKS, getTasksByType, canCompleteTask, getTaskProgress, getTaskTypeColor } from "@/utils/task-system"
 import type { Task } from "@/types/task"
+import { sdk } from '@farcaster/frame-sdk'
+import { useFarcasterContext } from "@/contexts/farcaster-context-provider"
+import { updateUserData, initializeUserData } from "@/lib/user-data-manager"
+import { supabase } from "@/lib/supabase"
 
 interface TasksTabProps {
   onTaskComplete?: (task: Task) => void
@@ -18,10 +22,122 @@ export default function TasksTab({ onTaskComplete, onEnergyUpdate, onPointsUpdat
   const [tasks, setTasks] = useState<Task[]>(TASKS)
   const [activeFilter, setActiveFilter] = useState<"all" | "onetime" | "daily" | "weekly">("all")
   const [completingTasks, setCompletingTasks] = useState<Set<number>>(new Set())
+  const { context, isLoading: farcasterLoading } = useFarcasterContext()
+  
+  // State for user data
+  const [isInitialized, setIsInitialized] = useState(false)
+  const [points, setPoints] = useState(0)
+  const [predictionsRemaining, setPredictionsRemaining] = useState(10)
+  const [completedTasks, setCompletedTasks] = useState<number[]>([])
+  const [lastCompletedTasks, setLastCompletedTasks] = useState<{[key: number]: string}>({})
 
   const progress = getTaskProgress()
 
   const filteredTasks = activeFilter === "all" ? tasks : getTasksByType(activeFilter)
+  
+  // Initialize user data from Supabase
+  useEffect(() => {
+    const initializeUser = async () => {
+      try {
+        let userContext
+
+        // If we have Farcaster context and fid, use real user info
+        if (context?.user?.fid) {
+          userContext = {
+            fid: context.user.fid,
+            displayName: context.user.displayName,
+            username: context.user.username,
+            pfpUrl: context.user.pfpUrl,
+          }
+          console.log("[TasksTab] Using Farcaster user:", userContext)
+        } else {
+          // If no fid, use default user for testing
+          userContext = {
+            fid: 1,
+            displayName: "Test User",
+            username: "testuser",
+            pfpUrl: undefined,
+          }
+          console.log("[TasksTab] Using test user:", userContext)
+        }
+
+        const gameData = await initializeUserData(userContext)
+
+        if (gameData) {
+          console.log("[TasksTab] Loaded game data:", gameData)
+          // Update state with loaded data
+          setPoints(gameData.points)
+          setPredictionsRemaining(gameData.predictionsRemaining)
+          
+          // Update completed tasks tracking
+          if ((gameData as any).completedTasks) {
+            setCompletedTasks((gameData as any).completedTasks)
+          }
+          if ((gameData as any).lastCompletedTasks) {
+            setLastCompletedTasks((gameData as any).lastCompletedTasks)
+          }
+          
+          // Update task completion status based on loaded data
+          updateTasksCompletionStatus(gameData);
+        } else {
+          console.log("[TasksTab] No game data loaded, using defaults")
+        }
+
+        setIsInitialized(true)
+      } catch (error) {
+        console.error("[TasksTab] Error initializing user data:", error)
+        setIsInitialized(true) // Still allow tasks to work with default data
+      }
+    }
+
+    // Only run when farcasterLoading is done or after timeout
+    if (!farcasterLoading) {
+      initializeUser()
+    } else {
+      // Timeout after 2 seconds if farcaster is still loading
+      const timeoutId = setTimeout(() => {
+        console.log("[TasksTab] Farcaster loading timeout, initializing with test user")
+        initializeUser()
+      }, 2000)
+
+      return () => clearTimeout(timeoutId)
+    }
+  }, [context, farcasterLoading])
+  
+  // Update tasks completion status based on loaded data
+  const updateTasksCompletionStatus = (gameData: any) => {
+    setTasks(prev => 
+      prev.map(task => {
+        // For one-time tasks, check if they're in the completed tasks array
+        if (task.type === "onetime" && gameData.completedTasks?.includes(task.id)) {
+          return { ...task, completed: true }
+        }
+        
+        // For daily/weekly tasks, check if they've been completed within the current period
+        if ((task.type === "daily" || task.type === "weekly") && 
+            gameData.lastCompletedTasks?.[task.id]) {
+          const lastCompleted = new Date(gameData.lastCompletedTasks[task.id])
+          const now = new Date()
+          
+          if (task.type === "daily") {
+            // Check if completed today
+            if (lastCompleted.toDateString() === now.toDateString()) {
+              return { ...task, lastCompletedAt: lastCompleted }
+            }
+          } else if (task.type === "weekly") {
+            // Check if completed this week
+            const weekStart = new Date(now)
+            weekStart.setDate(weekStart.getDate() - weekStart.getDay())
+            if (lastCompleted >= weekStart) {
+              return { ...task, lastCompletedAt: lastCompleted }
+            }
+          }
+        }
+        
+        return task
+      })
+    )
+  }
 
   const handleTaskComplete = async (task: Task) => {
     if (!canCompleteTask(task) || completingTasks.has(task.id)) return
@@ -31,7 +147,7 @@ export default function TasksTab({ onTaskComplete, onEnergyUpdate, onPointsUpdat
     try {
       // If task requires external verification, open the link
       if (task.externalUrl) {
-        window.open(task.externalUrl, "_blank")
+        await sdk.actions.openUrl(task.externalUrl)
 
         // For social tasks, we'll simulate completion after a delay
         // In a real app, you'd verify the action was completed
@@ -55,6 +171,7 @@ export default function TasksTab({ onTaskComplete, onEnergyUpdate, onPointsUpdat
   const completeTask = (task: Task) => {
     const now = new Date()
 
+    // Update local task state
     setTasks((prev) =>
       prev.map((t) => {
         if (t.id === task.id) {
@@ -70,12 +187,27 @@ export default function TasksTab({ onTaskComplete, onEnergyUpdate, onPointsUpdat
       }),
     )
 
-    // Apply rewards
+    // Update local state for rewards
     if (task.reward.points) {
+      const newPoints = points + task.reward.points
+      setPoints(newPoints)
       onPointsUpdate?.(task.reward.points)
     }
+    
     if (task.reward.energy) {
+      const newPredictions = predictionsRemaining + task.reward.energy
+      setPredictionsRemaining(newPredictions)
       onEnergyUpdate?.(task.reward.energy)
+    }
+    
+    // Update completed tasks tracking
+    if (task.type === "onetime") {
+      setCompletedTasks(prev => [...prev, task.id])
+    } else if (task.type === "daily" || task.type === "weekly") {
+      setLastCompletedTasks(prev => ({
+        ...prev,
+        [task.id]: now.toISOString()
+      }))
     }
 
     onTaskComplete?.(task)
@@ -141,6 +273,32 @@ export default function TasksTab({ onTaskComplete, onEnergyUpdate, onPointsUpdat
 
     return ""
   }
+
+  // Update Supabase when game data changes - this is the key pattern from race-tab.tsx
+  useEffect(() => {
+    if (!isInitialized || !context?.user?.fid) return
+    
+    const fid = context.user.fid
+    console.log(`[TasksTab][fid=${fid}] Syncing data with Supabase...`)
+    
+    // Use type assertion to add our custom properties
+    const gameData: any = {
+      points,
+      predictionsRemaining,
+      completedTasks,
+      lastCompletedTasks
+    }
+    
+    console.log(`[TasksTab][fid=${fid}] Updating user data:`, gameData)
+    updateUserData(gameData)
+  }, [
+    isInitialized,
+    context?.user?.fid,
+    points,
+    predictionsRemaining,
+    completedTasks,
+    lastCompletedTasks
+  ])
 
   return (
     <div className="flex flex-col w-full h-full px-4 pt-4">
