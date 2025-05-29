@@ -24,6 +24,7 @@ import { FarcasterContextDebug } from "@/components/farcaster-context-debug"
 export default function Home() {
   const [activeTab, setActiveTab] = useState("home")
   const [isRacing, setIsRacing] = useState(false)
+  const [showUpgradesModal, setShowUpgradesModal] = useState(false)
   const [raceData, setRaceData] = useState({
     points: 0,
     winRate: 65,
@@ -42,8 +43,8 @@ sdk.actions.ready();
 
   return (
     <main className="flex flex-col items-center h-screen w-full relative overflow-hidden">
-      {/* Header - hidden when racing, pass current tab */}
-      {!isRacing && <Header currentTab={activeTab} />}
+      {/* Header - hidden when racing, upgrades modal is open, or on leaderboard tab */}
+      {!isRacing && <Header currentTab={activeTab} showUpgradesModal={showUpgradesModal} />}
 
       <div className="w-full max-w-md mx-auto flex flex-col items-center h-screen pb-20">
         <div className="w-full flex-1 flex flex-col overflow-hidden">
@@ -52,7 +53,11 @@ sdk.actions.ready();
             {/* Farcaster Context Debug Component */}
             {/* <FarcasterContextDebug /> */}
             <Suspense fallback={<LoadingSpinner />}>
-              <RaceTab onDataUpdate={setRaceData} />
+              <RaceTab 
+                onDataUpdate={setRaceData} 
+                showUpgradesModal={showUpgradesModal}
+                setShowUpgradesModal={setShowUpgradesModal}
+              />
             </Suspense>
           </TabContent>
 

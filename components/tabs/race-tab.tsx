@@ -57,9 +57,11 @@ interface RaceTabProps {
     unlockedBadges: Badge[]
     unlockedFrames: BadgeFrame[]
   }) => void
+  showUpgradesModal?: boolean
+  setShowUpgradesModal?: (show: boolean) => void
 }
 
-export default function RaceTab({ onDataUpdate }: RaceTabProps) {
+export default function RaceTab({ onDataUpdate, showUpgradesModal, setShowUpgradesModal }: RaceTabProps) {
   const { context, isLoading: farcasterLoading } = useFarcasterContext()
 
   // State variables - will be initialized from Supabase
@@ -748,6 +750,8 @@ export default function RaceTab({ onDataUpdate }: RaceTabProps) {
         onUseItem={handleUseItem}
         doublePointsActive={doublePointsActive}
         doublePointsEndTime={doublePointsEndTime}
+        showUpgradesModal={showUpgradesModal}
+        setShowUpgradesModal={setShowUpgradesModal}
       />
 
       {/* Prediction Controls */}

@@ -4,7 +4,7 @@ import { useState } from "react"
 import { PriceDisplayWidget } from "@/components/shared/price-display-widget"
 import { PointsBalance } from "./points-balance"
 import { UpgradesModal } from "./upgrades-modal"
-import { Header } from "@/components/header"
+// Header is now managed in the main page.tsx
 import type { JSX } from "react"
 import type { F1Car } from "@/types/f1-car"
 
@@ -48,6 +48,8 @@ interface RaceContentProps {
   onUseItem?: (itemId: number) => void
   doublePointsActive?: boolean
   doublePointsEndTime?: number
+  showUpgradesModal?: boolean
+  setShowUpgradesModal?: (show: boolean) => void
 }
 
 export function RaceContent({
@@ -67,8 +69,9 @@ export function RaceContent({
   onUseItem = () => {},
   doublePointsActive = false,
   doublePointsEndTime = 0,
+  showUpgradesModal = false,
+  setShowUpgradesModal = () => {},
 }: RaceContentProps) {
-  const [showUpgrades, setShowUpgrades] = useState(false)
 
   const handleUpgrade = (upgradeId: number) => {
     const upgrade = upgrades.find((u) => u.id === upgradeId)
@@ -91,8 +94,7 @@ export function RaceContent({
 
   return (
     <div className="relative w-full z-10 mt-8">
-      {/* Header với prop để ẩn khi modal mở */}
-      <Header currentTab="home" showUpgradesModal={showUpgrades} />
+      {/* Header removed - now managed in page.tsx */}
 
       <PointsBalance points={points} countdownActive={countdownActive} countdownTime={countdownTime} />
 
@@ -102,13 +104,13 @@ export function RaceContent({
         renderDigitSlot={renderDigitSlot}
         showWheel={true}
         showUpgradesLink={true}
-        onUpgradesClick={() => setShowUpgrades(true)}
+        onUpgradesClick={() => setShowUpgradesModal(true)}
       />
 
       {/* Upgrades Modal */}
-      {showUpgrades && (
+      {showUpgradesModal && (
         <UpgradesModal
-          onClose={() => setShowUpgrades(false)}
+          onClose={() => setShowUpgradesModal(false)}
           points={points}
           upgrades={upgrades}
           onUpgrade={handleUpgrade}
