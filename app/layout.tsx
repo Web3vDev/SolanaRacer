@@ -24,7 +24,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <FarcasterContextProvider>
             {children}
-            <div id="modal-portal" />
+            {/* Modal portal được đặt trong page.tsx */}
           </FarcasterContextProvider>
         </ThemeProvider>
       </body>

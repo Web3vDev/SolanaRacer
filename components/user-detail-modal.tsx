@@ -1,7 +1,6 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { X, Trophy, Star, Palette } from "lucide-react"
 import { BadgeGrid } from "@/components/badge-grid"
 import { BadgeFrameGrid } from "@/components/badge-frame-grid"
@@ -74,6 +73,7 @@ export function UserDetailModal({ user, onClose }: UserDetailModalProps) {
     <div 
       className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       onClick={handleBackdropClick}
+      style={{ pointerEvents: 'auto' }} // Đảm bảo modal có thể nhận sự kiện
     >
       {/* Modal container với kích thước cố định và scroll riêng */}
       <div 

@@ -92,7 +92,15 @@ sdk.actions.ready();
         </div>
 
         {/* Modal Portal Container - Highest Z-Index */}
-        <div id="modal-portal" className="fixed inset-0 pointer-events-none" style={{ zIndex: 9999 }}></div>
+        <div 
+          id="modal-portal" 
+          className="fixed inset-0" 
+          style={{ 
+            zIndex: 9999,
+            pointerEvents: 'none', // Chỉ áp dụng với container, không áp dụng với nội dung bên trong
+            isolation: 'isolate' // Tạo ngữ cảnh xếp chồng mới
+          }}
+        ></div>
 
         {/* Bottom navigation - hidden when racing */}
         {!isRacing && (
