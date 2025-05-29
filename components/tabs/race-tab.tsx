@@ -251,21 +251,35 @@ export default function RaceTab({ onDataUpdate, showUpgradesModal, setShowUpgrad
                 const newEnergy = Math.min(gameData.predictionsRemaining + energyToRestore, maxEnergy);
                 console.log(`[Energy] Updating energy from ${gameData.predictionsRemaining} to ${newEnergy}`);
                 setPredictionsRemaining(newEnergy);
+                
+                // Important: Update the lastPredictionTime to account for the recovered energy
+                // This prevents getting the same energy on reload
+                const updatedTime = lastPredTime + (energyToRestore * actualRecoveryTime);
+                console.log(`[Energy] Updating last prediction time to account for recovered energy`);
+                setLastPredictionTime(updatedTime);
+                
+                // Force update to Supabase immediately to prevent reload issues
+                const immediateUpdate = {
+                  predictionsRemaining: newEnergy,
+                  lastPredictionTime: updatedTime
+                };
+                updateUserData(immediateUpdate);
               } else {
                 // No energy recovery needed, use the stored value
                 setPredictionsRemaining(gameData.predictionsRemaining);
+                setLastPredictionTime(gameData.lastPredictionTime);
               }
             } else {
               // Less than a minute has passed, use stored value
               setPredictionsRemaining(gameData.predictionsRemaining);
+              setLastPredictionTime(gameData.lastPredictionTime);
             }
           } else {
             // No lastPredictionTime available, use stored value
             setPredictionsRemaining(gameData.predictionsRemaining);
+            // Set current time if no lastPredictionTime exists
+            setLastPredictionTime(Date.now());
           }
-          
-          // Must set this after energy calculations
-          setLastPredictionTime(gameData.lastPredictionTime)
         } else {
           console.log("No game data loaded, using defaults")
         }
