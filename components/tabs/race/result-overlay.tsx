@@ -1,8 +1,8 @@
 import { TrendingUp, TrendingDown } from "lucide-react"
-import type { RefObject } from "react"
+import type { MutableRefObject } from "react"
 
 interface ResultOverlayProps {
-  resultOverlayRef: RefObject<HTMLDivElement>
+  resultOverlayRef: MutableRefObject<HTMLDivElement>
   predictionResult: "correct" | "wrong" | null
   priceBeforePrediction: string
   priceAfterPrediction: string
@@ -19,7 +19,7 @@ export function ResultOverlay({
   return (
     <div
       ref={resultOverlayRef}
-      className="fixed inset-0 bg-black/90 flex items-center justify-center z-90 result-overlay"
+      className="fixed inset-0 bg-black flex items-center justify-center z-9999 result-overlay"
     >
       <div className="text-center p-8 max-w-md">
         {/* Title - Win or Lose */}

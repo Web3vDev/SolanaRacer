@@ -59,7 +59,7 @@ html {
 /* Cập nhật bottom-nav để liền với màn hình */
 .bottom-nav {
   position: fixed;
-  bottom: 0;
+  bottom: 4;
   left: 0;
   right: 0;
   z-index: 40;

@@ -90,7 +90,7 @@ export function RaceContent({
   }
 
   return (
-    <div className="relative w-full z-10">
+    <div className="relative w-full z-10 mt-8">
       {/* Header với prop để ẩn khi modal mở */}
       <Header currentTab="home" showUpgradesModal={showUpgrades} />
 

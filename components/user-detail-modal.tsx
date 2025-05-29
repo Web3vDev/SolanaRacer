@@ -13,11 +13,14 @@ import { useEffect, useState } from "react"
 
 interface UserDetailModalProps {
   user: {
-    id: string
-    name: string
+    id?: string
+    fid?: number
+    name?: string
+    display_name?: string
     points: number
     rank: number
     avatar?: string
+    pfp_url?: string
     winRate?: number
     totalRaces?: number
   }
@@ -54,6 +57,9 @@ export function UserDetailModal({ user, onClose }: UserDetailModalProps) {
   const unlockedBadges = getUnlockedBadges(user.points) || []
   const unlockedFrames = getBadgeFrameProgress(user.points) || []
   const currentFrame = getCurrentBadgeFrame(user.points)
+  
+  // Get display name from the appropriate field
+  const displayName = user.display_name || user.name || "Player"
 
   // Xử lý đóng modal khi click ra ngoài
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -71,13 +77,13 @@ export function UserDetailModal({ user, onClose }: UserDetailModalProps) {
 
   const modalContent = (
     <div 
-      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2"
       onClick={handleBackdropClick}
       style={{ pointerEvents: 'auto' }} // Đảm bảo modal có thể nhận sự kiện
     >
       {/* Modal container với kích thước cố định và scroll riêng */}
       <div 
-        className="bg-zinc-900 rounded-lg w-full max-w-md h-[80vh] flex flex-col overflow-hidden" 
+        className="bg-zinc-900 rounded-lg w-full max-w-md h-[90vh] flex flex-col overflow-hidden" 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header - Cố định */}
@@ -93,17 +99,17 @@ export function UserDetailModal({ user, onClose }: UserDetailModalProps) {
         </div>
 
         {/* Content - Có thể cuộn */}
-        <div className="flex-1 overflow-y-auto p-4" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4" style={{ WebkitOverflowScrolling: 'touch' }}>
           {/* Profile Header */}
           <div className="flex flex-col items-center mb-6">
             <AvatarWithFrame
-              src={user.avatar || "/placeholder.svg"}
-              alt={user.name}
+              src={user.pfp_url || user.avatar || "/placeholder.svg"}
+              alt={displayName}
               size="xl"
               badgeFrame={currentFrame}
               className="rounded-full"
             />
-            <h3 className="text-xl font-bold mt-4">{user.name}</h3>
+            <h3 className="text-xl font-bold mt-4">{displayName}</h3>
             <div className="flex items-center gap-2 mt-2">
               <span className="text-xl">{currentLevel.icon}</span>
               <span className={`text-base font-bold ${currentLevel.color}`}>
@@ -128,7 +134,7 @@ export function UserDetailModal({ user, onClose }: UserDetailModalProps) {
 
           {/* Stats Card */}
           <Card className="bg-zinc-800 border-0 p-4 mb-4">
-            <h4 className="font-medium mb-3">Stats</h4>
+            {/* <h4 className="font-medium mb-3">Stats</h4> */}
             <div className="grid grid-cols-3 gap-4">
               <div className="flex flex-col items-center">
                 <div className="text-xl font-bold">{user.points.toLocaleString()}</div>

@@ -643,7 +643,7 @@ export default function TeamsTab({ onRaceStateChange }: TeamsTabProps) {
           <div className="relative w-full max-w-[90%] z-10 backdrop-blur-md bg-white/10 rounded-xl p-6 border border-white/20 shadow-lg mt-auto mb-4">
             <p className="text-white/80 text-sm mb-3 font-medium text-center">Guess the SOL price in the next 4 secs</p>
 
-            <div className="flex justify-center gap-16 w-full">
+            <div className="flex justify-center gap-6 w-full">
               <button
                 className={`flex items-center justify-center gap-2 bg-gradient-to-r from-red-400 to-red-600 text-white font-bold py-3 px-6 uppercase shadow-[0_4px_0_0_#b91c1c,0_6px_10px_rgba(0,0,0,0.5)] hover:shadow-[0_2px_0_0_#b91c1c,0_4px_6px_rgba(0,0,0,0.4)] hover:translate-y-[2px] active:translate-y-[4px] active:shadow-none transition-all ${
                   raceState.countdown > 0 ? "opacity-50 cursor-not-allowed" : ""

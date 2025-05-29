@@ -50,7 +50,7 @@ export function PredictionControls({
 
   return (
     <div
-      className="w-full max-w-[90%] backdrop-blur-md bg-white/10 rounded-xl p-6 border border-white/20 shadow-lg mt-auto mb-4"
+      className="w-full max-w-[90%] backdrop-blur-md bg-white/10 rounded-xl p-6 border border-white/20 shadow-lg mt-auto"
       style={{ position: "relative" }}
     >
       {/* Instruction text */}
@@ -68,9 +68,9 @@ export function PredictionControls({
 
       {/* Recovery info */}
       <div className="text-center mt-2">
-        <div className="text-white/60 text-xs">+1 every 10 minutes (max 20)</div>
+        {/* <div className="text-white/60 text-xs">+1 every 10 minutes (max 20)</div> */}
         {timeUntilNextRecovery && predictionsRemaining < totalPredictions && (
-          <div className="text-white/80 text-xs mt-1 font-medium">Next energy: {timeUntilNextRecovery}</div>
+          <div className="text-white/80 text-xs mt-4 font-medium">Next energy: {timeUntilNextRecovery}</div>
         )}
       </div>
     </div>

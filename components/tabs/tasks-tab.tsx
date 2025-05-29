@@ -14,6 +14,7 @@ interface TasksTabProps {
 }
 
 export default function TasksTab({ onTaskComplete, onEnergyUpdate, onPointsUpdate }: TasksTabProps) {
+  const [progressOpen, setProgressOpen] = useState(false);
   const [tasks, setTasks] = useState<Task[]>(TASKS)
   const [activeFilter, setActiveFilter] = useState<"all" | "onetime" | "daily" | "weekly">("all")
   const [completingTasks, setCompletingTasks] = useState<Set<number>>(new Set())
@@ -142,36 +143,58 @@ export default function TasksTab({ onTaskComplete, onEnergyUpdate, onPointsUpdat
   }
 
   return (
-    <div className="flex flex-col w-full h-full p-4 pt-8 pb-20">
+    <div className="flex flex-col w-full h-full px-4 pt-4">
       <h2 className="text-2xl font-bold text-center mb-2">Tasks</h2>
       <p className="text-center text-zinc-400 text-sm mb-6">Complete tasks to earn points and energy!</p>
 
-      {/* Progress Overview */}
-      <Card className="bg-zinc-900 border-0 p-4 mb-6">
-        <div className="grid grid-cols-2 gap-4 text-center">
-          <div>
-            <p className="text-2xl font-bold text-white">
-              {progress.completedTasks}/{progress.totalTasks}
-            </p>
-            <p className="text-xs text-zinc-400">Total Completed</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-green-400">{progress.totalPointsEarned.toLocaleString()}</p>
-            <p className="text-xs text-zinc-400">Points Earned</p>
-          </div>
-        </div>
-
-        <div className="mt-4 grid grid-cols-2 gap-4 text-center">
-          <div>
-            <p className="text-lg font-bold text-blue-400">{progress.todayCompleted}</p>
-            <p className="text-xs text-zinc-400">Today</p>
-          </div>
-          <div>
-            <p className="text-lg font-bold text-purple-400">{progress.weeklyCompleted}</p>
-            <p className="text-xs text-zinc-400">This Week</p>
-          </div>
-        </div>
-      </Card>
+      {/* Progress Overview Dropdown */}
+      <div className="mb-6">
+        <Card className="bg-zinc-900 border-0 p-0">
+          <button
+            type="button"
+            className="flex items-center justify-between w-full px-4 py-3 focus:outline-none"
+            onClick={() => setProgressOpen((open) => !open)}
+            aria-expanded={progressOpen}
+          >
+            <span className="font-semibold text-white text-base">Progress Overview</span>
+            <svg
+              className={`transition-transform duration-200 w-5 h-5 text-zinc-400 ${progressOpen ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          {progressOpen && (
+            <div className="px-4 pb-4 pt-1">
+              <div className="grid grid-cols-2 gap-4 text-center">
+                <div>
+                  <p className="text-2xl font-bold text-white">
+                    {progress.completedTasks}/{progress.totalTasks}
+                  </p>
+                  <p className="text-xs text-zinc-400">Total Completed</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-green-400">{progress.totalPointsEarned.toLocaleString()}</p>
+                  <p className="text-xs text-zinc-400">Points Earned</p>
+                </div>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-4 text-center">
+                <div>
+                  <p className="text-lg font-bold text-blue-400">{progress.todayCompleted}</p>
+                  <p className="text-xs text-zinc-400">Today</p>
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-purple-400">{progress.weeklyCompleted}</p>
+                  <p className="text-xs text-zinc-400">This Week</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </Card>
+      </div>
 
       {/* Filter Tabs */}
       <div className="flex gap-2 mb-4 overflow-x-auto">

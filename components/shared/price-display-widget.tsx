@@ -38,7 +38,7 @@ export function PriceDisplayWidget({
               <PriceDisplay isLoading={isLoading} displayPrice={displayPrice} renderDigitSlot={renderDigitSlot} />
               {showUpgradesLink && (
                 <p
-                  className="text-sm text-white/80 mt-12 font-bold cursor-pointer hover:text-white transition-colors active:scale-95"
+                  className="text-sm text-white/80 mt-9 font-bold cursor-pointer hover:text-white transition-colors active:scale-95"
                   onClick={onUpgradesClick}
                 >
                   🏎️ Upgrades &gt;

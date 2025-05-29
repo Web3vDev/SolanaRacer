@@ -156,14 +156,15 @@ export default function RaceTab({ onDataUpdate }: RaceTabProps) {
   const prevDisplayPriceRef = useRef("205.000")
   const spinTimeouts = useRef([])
   const speedTimeoutRef = useRef(null)
-  const resultOverlayRef = useRef(null)
+  // Using MutableRefObject instead of RefObject to fix type compatibility
+  const resultOverlayRef = useRef<HTMLDivElement>(null) as React.MutableRefObject<HTMLDivElement>
   const countdownIntervalRef = useRef(null)
   const priceUnsubscribeRef = useRef<(() => void) | null>(null)
 
   // State variables for price updates
   const [isLoading, setIsLoading] = useState(true)
   const [priceDirection, setPriceDirection] = useState<"up" | "down" | "neutral">("neutral")
-  const [spinningDigits, setSpinningDigits] = useState({})
+  const [spinningDigits, setSpinningDigits] = useState<Record<number, boolean>>({})
   const [displayPrice, setDisplayPrice] = useState("200.000")
 
   // State variables for prediction
@@ -367,7 +368,7 @@ export default function RaceTab({ onDataUpdate }: RaceTabProps) {
         spinTimeouts.current = []
 
         // Track which digits are spinning by comparing with previous price
-        const newSpinningDigits = {}
+        const newSpinningDigits: { [key: number]: boolean } = {}
 
         // Compare each digit and only animate those that change
         newPrice.split("").forEach((digit, index) => {
