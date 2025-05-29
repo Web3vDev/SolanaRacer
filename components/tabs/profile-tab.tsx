@@ -18,7 +18,7 @@ import { getCurrentLevel, getNextLevel, getLevelProgress } from "@/utils/level-s
 import type { Badge } from "@/types/badge"
 import type { BadgeFrame } from "@/types/badge-frame"
 import { FarcasterInfoCard } from "@/components/farcaster-info-card"
-import { useFarcasterContext } from "@/hooks/use-farcaster-context"
+import { useFarcasterContext } from "@/contexts/farcaster-context-provider"
 
 interface ProfileTabProps {
   points?: number

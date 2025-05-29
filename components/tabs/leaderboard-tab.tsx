@@ -7,7 +7,7 @@ import { getLeaderboardBadges } from "@/utils/badge-system"
 import { getCurrentLevel } from "@/utils/level-system"
 import { useState, useEffect } from "react"
 import { UserDetailModal } from "@/components/user-detail-modal"
-import { useFarcasterContext } from "@/hooks/use-farcaster-context"
+import { useFarcasterContext } from "@/contexts/farcaster-context-provider"
 
 interface LeaderboardTabProps {
   userPoints?: number

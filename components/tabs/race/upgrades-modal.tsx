@@ -59,6 +59,8 @@ export function UpgradesModal({
   doublePointsEndTime = 0,
 }: UpgradesModalProps) {
   const [activeTab, setActiveTab] = useState("car")
+  // State for Points Card dropdown
+  const [pointsCardOpen, setPointsCardOpen] = useState(false)
 
   // Disable scrolling when modal is open
   useEffect(() => {
@@ -247,7 +249,7 @@ export function UpgradesModal({
         <div className="flex items-center justify-between p-4 border-b border-zinc-800">
           <button onClick={onClose} className="text-white flex items-center hover:text-gray-300 transition-colors">
             <ChevronLeft className="w-6 h-6" />
-            <span className="text-xl">Back</span>
+            <span className="text-base">Back</span>
           </button>
 
           <div className="flex-1"></div>
@@ -257,58 +259,71 @@ export function UpgradesModal({
           </button>
         </div>
 
-        {/* Points Card */}
+        {/* Points Card Dropdown */}
         <div className="p-4">
           <Card className="bg-zinc-900 border border-zinc-700/50 rounded-xl p-4">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-zinc-400 text-lg">Available points</span>
-              <span className="text-white text-3xl font-bold">{points.toLocaleString()}</span>
-            </div>
-
-            {doublePointsActive && (
-              <div className="mb-4 p-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg border border-purple-500/30">
-                <div className="flex items-center justify-between">
-                  <span className="text-purple-300 text-sm font-medium">💎 Double Points Active</span>
-                  <span className="text-purple-200 text-xs">{formatTimeRemaining(doublePointsEndTime)}</span>
-                </div>
+            <button
+              className="w-full flex justify-between items-center mb-2 focus:outline-none"
+              onClick={() => setPointsCardOpen((prev) => !prev)}
+              aria-expanded={pointsCardOpen}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-zinc-400 text-sm">Available points: </span>
+                <span className="text-white text-sm font-bold">{points.toLocaleString()}</span>
               </div>
+              <ChevronLeft
+                className={`w-6 h-6 text-zinc-400 transition-transform ${pointsCardOpen ? 'rotate-[-90deg]' : 'rotate-180'}`}
+              />
+            </button>
+
+            {pointsCardOpen && (
+              <>
+                {doublePointsActive && (
+                  <div className="mb-4 p-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg border border-purple-500/30">
+                    <div className="flex items-center justify-between">
+                      <span className="text-purple-300 text-xs font-medium">💎 Double Points Active</span>
+                      <span className="text-purple-200 text-xs">{formatTimeRemaining(doublePointsEndTime)}</span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="h-px bg-zinc-800 my-4"></div>
+
+                <div className="grid grid-cols-2 gap-4 text-center">
+                  <div className="flex flex-col items-center">
+                    <span className="text-zinc-400 text-xs">Win Bonus</span>
+                    <div className="flex items-center mt-1">
+                      <Trophy className="w-4 h-4 text-yellow-400 mr-1" />
+                      <span className="text-white font-bold">+{totalStats.pointsBonus}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-center">
+                    <span className="text-zinc-400 text-xs">Points Multiplier</span>
+                    <div className="flex items-center mt-1">
+                      <Star className="w-4 h-4 text-blue-400 mr-1" />
+                      <span className="text-white font-bold">+{Math.floor(totalStats.pointsMultiplier * 100)}%</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-center">
+                    <span className="text-zinc-400 text-xs">Recovery Speed</span>
+                    <div className="flex items-center mt-1">
+                      <Clock className="w-4 h-4 text-green-400 mr-1" />
+                      <span className="text-white font-bold">+{totalStats.recoverySpeed}%</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-center">
+                    <span className="text-zinc-400 text-xs">Max Energy</span>
+                    <div className="flex items-center mt-1">
+                      <Battery className="w-4 h-4 text-orange-400 mr-1" />
+                      <span className="text-white font-bold">{totalStats.maxEnergy}</span>
+                    </div>
+                  </div>
+                </div>
+              </>
             )}
-
-            <div className="h-px bg-zinc-800 my-4"></div>
-
-            <div className="grid grid-cols-2 gap-4 text-center">
-              <div className="flex flex-col items-center">
-                <span className="text-zinc-400 text-sm">Win Bonus</span>
-                <div className="flex items-center mt-1">
-                  <Trophy className="w-4 h-4 text-yellow-400 mr-1" />
-                  <span className="text-white font-bold">+{totalStats.pointsBonus}</span>
-                </div>
-              </div>
-
-              <div className="flex flex-col items-center">
-                <span className="text-zinc-400 text-sm">Points Multiplier</span>
-                <div className="flex items-center mt-1">
-                  <Star className="w-4 h-4 text-blue-400 mr-1" />
-                  <span className="text-white font-bold">+{Math.floor(totalStats.pointsMultiplier * 100)}%</span>
-                </div>
-              </div>
-
-              <div className="flex flex-col items-center">
-                <span className="text-zinc-400 text-sm">Recovery Speed</span>
-                <div className="flex items-center mt-1">
-                  <Clock className="w-4 h-4 text-green-400 mr-1" />
-                  <span className="text-white font-bold">+{totalStats.recoverySpeed}%</span>
-                </div>
-              </div>
-
-              <div className="flex flex-col items-center">
-                <span className="text-zinc-400 text-sm">Max Energy</span>
-                <div className="flex items-center mt-1">
-                  <Battery className="w-4 h-4 text-orange-400 mr-1" />
-                  <span className="text-white font-bold">{totalStats.maxEnergy}</span>
-                </div>
-              </div>
-            </div>
           </Card>
         </div>
 
@@ -316,19 +331,19 @@ export function UpgradesModal({
         <div className="border-b border-zinc-800">
           <div className="flex">
             <button
-              className={`flex-1 py-3 text-lg font-bold ${activeTab === "racer" ? "text-white border-b-2 border-white" : "text-zinc-500"}`}
+              className={`flex-1 py-2 text-xs font-bold ${activeTab === "racer" ? "text-white border-b-2 border-white" : "text-zinc-500"}`}
               onClick={() => setActiveTab("racer")}
             >
               Racer
             </button>
             <button
-              className={`flex-1 py-3 text-lg font-bold ${activeTab === "car" ? "text-white border-b-2 border-white" : "text-zinc-500"}`}
+              className={`flex-1 py-2 text-xs font-bold ${activeTab === "car" ? "text-white border-b-2 border-white" : "text-zinc-500"}`}
               onClick={() => setActiveTab("car")}
             >
               Car
             </button>
             <button
-              className={`flex-1 py-3 text-lg font-bold ${activeTab === "items" ? "text-white border-b-2 border-white" : "text-zinc-500"}`}
+              className={`flex-1 py-2 text-xs font-bold ${activeTab === "items" ? "text-white border-b-2 border-white" : "text-zinc-500"}`}
               onClick={() => setActiveTab("items")}
             >
               Items
@@ -355,17 +370,17 @@ export function UpgradesModal({
                         </div>
 
                         <div className="flex-1">
-                          <h3 className="text-xl font-bold text-white">{upgrade.name}</h3>
-                          <p className="text-sm text-zinc-400 mb-2">{getEffectDescription(upgrade)}</p>
+                          <h3 className="text-base font-bold text-white">{upgrade.name}</h3>
+                          <p className="text-xs text-zinc-400 mb-2">{getEffectDescription(upgrade)}</p>
 
                           <div className="flex items-center justify-between">
                             <div className="flex items-center">
                               <Coins className="w-4 h-4 text-yellow-400 mr-1" />
-                              <span className="text-zinc-400 mr-2">
+                              <span className="text-zinc-400 text-xs mr-2">
                                 {maxed ? "MAX" : `-${cost.toLocaleString()} pts`}
                               </span>
                               <span className="text-zinc-600">•</span>
-                              <span className="text-zinc-400 ml-2">
+                              <span className="text-zinc-400 ml-2 text-xs">
                                 Lvl {upgrade.level}/{upgrade.maxLevel}
                               </span>
                             </div>
@@ -387,12 +402,7 @@ export function UpgradesModal({
                           </div>
 
                           {/* Level progress bar */}
-                          <div className="mt-2 w-full bg-zinc-800 h-1 rounded-full overflow-hidden">
-                            <div
-                              className="bg-gradient-to-r from-purple-500 to-green-400 h-full rounded-full transition-all duration-300"
-                              style={{ width: `${(upgrade.level / upgrade.maxLevel) * 100}%` }}
-                            ></div>
-                          </div>
+                        
                         </div>
                       </div>
                     </Card>
@@ -400,8 +410,8 @@ export function UpgradesModal({
                 })
               ) : (
                 <div className="text-center py-12">
-                  <div className="text-6xl mb-4">🏁</div>
-                  <h3 className="text-xl font-bold text-white mb-2">No Upgrades Available</h3>
+                  <div className="text-3xl mb-4">🏁</div>
+                  <h3 className="text-base font-bold text-white mb-2">No Upgrades Available</h3>
                   <p className="text-zinc-400">Upgrades will be available soon!</p>
                 </div>
               )}
@@ -447,12 +457,12 @@ export function UpgradesModal({
                         {/* Car Info */}
                         <div className="mb-3">
                           <div className="flex items-center justify-between mb-1">
-                            <h3 className="text-lg font-bold text-white">{car.name}</h3>
+                            <h3 className="text-sm font-bold text-white">{car.name}</h3>
                             <span className={`text-xs px-2 py-1 rounded-full ${getCarRarityColor(car.rarity)}`}>
                               {car.rarity.toUpperCase()}
                             </span>
                           </div>
-                          <p className="text-sm text-zinc-400">{car.team}</p>
+                          <p className="text-xs text-zinc-400">{car.team}</p>
                         </div>
 
                         {/* Stats */}
@@ -502,7 +512,7 @@ export function UpgradesModal({
 
                         {/* Action Button */}
                         <div className="flex items-center justify-between">
-                          <div className="text-sm">
+                          <div className="text-xs">
                             {car.price === 0 ? (
                               <span className="text-green-400 font-bold">FREE</span>
                             ) : (
@@ -543,8 +553,8 @@ export function UpgradesModal({
                 })
               ) : (
                 <div className="text-center py-12">
-                  <div className="text-6xl mb-4">🏎️</div>
-                  <h3 className="text-xl font-bold text-white mb-2">No Cars Available</h3>
+                  <div className="text-3xl mb-4">🏎️</div>
+                  <h3 className="text-base font-bold text-white mb-2">No Cars Available</h3>
                   <p className="text-zinc-400">Cars will be available soon!</p>
                 </div>
               )}
@@ -563,8 +573,8 @@ export function UpgradesModal({
                       </div>
 
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white">{item.name}</h3>
-                        <p className="text-sm text-zinc-400 mb-2">{item.description}</p>
+                        <h3 className="text-base font-bold text-white">{item.name}</h3>
+                        <p className="text-xs text-zinc-400 mb-2">{item.description}</p>
 
                         <div className="flex items-center justify-between">
                           <div className="flex items-center">
@@ -590,8 +600,8 @@ export function UpgradesModal({
                 ))
               ) : (
                 <div className="text-center py-12">
-                  <div className="text-6xl mb-4">📦</div>
-                  <h3 className="text-xl font-bold text-white mb-2">No Items</h3>
+                  <div className="text-3xl mb-4">📦</div>
+                  <h3 className="text-base font-bold text-white mb-2">No Items</h3>
                   <p className="text-zinc-400">Complete tasks to earn items!</p>
                 </div>
               )}

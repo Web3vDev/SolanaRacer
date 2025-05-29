@@ -24,19 +24,20 @@ import { TestButton } from "@/components/test-button"
 // Import sound functions at the top
 import { playSound, playBackgroundMusic } from "@/lib/sound-manager"
 
-interface Upgrade {
-  id: number
-  name: string
-  description: string
-  baseCost: number
-  icon: string
-  level: number
-  maxLevel: number
-  effect: {
-    type: "pointsBonus" | "pointsMultiplier" | "recoverySpeed" | "maxEnergy" | "comboBonus"
-    value: number
-  }
-}
+// Import statistics functions
+import { 
+  getCurrentSuccessRate,
+  getPointsMultiplier,
+  getWinBonus,
+  getComboBonus,
+  getRecoverySpeed,
+  getMaxEnergy
+} from "@/utils/race-statistics"
+
+// Import the Upgrade type from game.ts
+import { Upgrade } from "@/types/game"
+
+// Upgrade interface moved to /types/game.ts
 
 interface Item {
   id: number
@@ -172,7 +173,7 @@ export default function RaceTab({ onDataUpdate }: RaceTabProps) {
   const [priceAfterPrediction, setPriceAfterPrediction] = useState("")
   const [predictionAction, setPredictionAction] = useState<"pump" | "dump" | null>(null)
   const [lineSpeed, setLineSpeed] = useState(5)
-  const [carMovement, setCarMovement] = useState("none")
+  const [carMovement, setCarMovement] = useState<"pump" | "dump" | "none">("none")
   const [countdownActive, setCountdownActive] = useState(false)
   const [countdownTime, setCountdownTime] = useState(4)
 
@@ -284,51 +285,7 @@ export default function RaceTab({ onDataUpdate }: RaceTabProps) {
     items,
   ])
 
-  // Calculate current success rate with car bonuses only
-  const getCurrentSuccessRate = () => {
-    const carBonuses = getTotalCarBonuses(cars)
-    return Math.min(baseSuccessRate + carBonuses.winRateBonus, 95) // Cap at 95%
-  }
-
-  // Calculate points multiplier from upgrades and car bonuses
-  const getPointsMultiplier = () => {
-    const upgradeMultiplier = upgrades.reduce((total, upgrade) => {
-      if (upgrade.effect.type === "pointsMultiplier") {
-        return total + upgrade.effect.value * upgrade.level
-      }
-      return total
-    }, 1) // Base multiplier is 1
-
-    const carBonuses = getTotalCarBonuses(cars)
-    return upgradeMultiplier + carBonuses.pointsMultiplier
-  }
-
-  // Calculate win bonus points
-  const getWinBonus = () => {
-    const winBonusUpgrade = upgrades.find((u) => u.effect.type === "pointsBonus")
-    return winBonusUpgrade ? winBonusUpgrade.effect.value * winBonusUpgrade.level : 0
-  }
-
-  // Calculate combo bonus
-  const getComboBonus = () => {
-    const comboUpgrade = upgrades.find((u) => u.effect.type === "comboBonus")
-    if (comboUpgrade && comboUpgrade.level > 0 && winStreak >= 2) {
-      return Math.floor((comboUpgrade.effect.value * comboUpgrade.level * winStreak) / 100)
-    }
-    return 0
-  }
-
-  // Calculate recovery speed
-  const getRecoverySpeed = () => {
-    const recoveryUpgrade = upgrades.find((u) => u.effect.type === "recoverySpeed")
-    return recoveryUpgrade ? recoveryUpgrade.effect.value * recoveryUpgrade.level : 0
-  }
-
-  // Calculate max energy
-  const getMaxEnergy = () => {
-    const maxEnergyUpgrade = upgrades.find((u) => u.effect.type === "maxEnergy")
-    return 20 + (maxEnergyUpgrade ? maxEnergyUpgrade.effect.value * maxEnergyUpgrade.level : 0)
-  }
+  // Statistics functions have been moved to /utils/race-statistics.ts
 
   // Handle upgrade
   const handleUpgrade = (upgradeId: number) => {
@@ -343,7 +300,7 @@ export default function RaceTab({ onDataUpdate }: RaceTabProps) {
     if (!item || item.quantity <= 0) return
 
     if (item.type === "energy_restore") {
-      setPredictionsRemaining(getMaxEnergy())
+      setPredictionsRemaining(getMaxEnergy(upgrades))
       setItems((prev) => prev.map((i) => (i.id === itemId ? { ...i, quantity: i.quantity - 1 } : i)))
     } else if (item.type === "double_points") {
       setDoublePointsActive(true)
@@ -369,7 +326,7 @@ export default function RaceTab({ onDataUpdate }: RaceTabProps) {
 
   // Update max predictions when energy tank is upgraded
   useEffect(() => {
-    const newMaxEnergy = getMaxEnergy()
+    const newMaxEnergy = getMaxEnergy(upgrades)
     setMaxPredictions(newMaxEnergy)
   }, [upgrades])
 
@@ -538,7 +495,7 @@ export default function RaceTab({ onDataUpdate }: RaceTabProps) {
       setTotalRaces((prev) => prev + 1)
 
       // Determine if prediction is correct based on success rate
-      const currentSuccessRate = getCurrentSuccessRate()
+      const currentSuccessRate = getCurrentSuccessRate(baseSuccessRate, cars)
       const isCorrect = Math.random() * 100 < currentSuccessRate
 
       // Set prediction result
@@ -596,9 +553,9 @@ export default function RaceTab({ onDataUpdate }: RaceTabProps) {
           if (isCorrect) {
             // Calculate points with all bonuses
             const basePoints = 100
-            const multiplier = getPointsMultiplier()
-            const winBonus = getWinBonus()
-            const comboBonus = getComboBonus()
+            const multiplier = getPointsMultiplier(upgrades, cars)
+            const winBonus = getWinBonus(upgrades)
+            const comboBonus = getComboBonus(upgrades, winStreak)
 
             let totalPoints = Math.floor((basePoints + winBonus) * multiplier) + comboBonus
 
@@ -659,7 +616,7 @@ export default function RaceTab({ onDataUpdate }: RaceTabProps) {
       const rank = checkLeaderboardBadges(points)
       onDataUpdate({
         points,
-        winRate: getCurrentSuccessRate(),
+        winRate: getCurrentSuccessRate(baseSuccessRate, cars),
         totalRaces,
         predictionsRemaining,
         unlockedBadges: getAllUnlockedBadges(points, rank),
@@ -688,7 +645,7 @@ export default function RaceTab({ onDataUpdate }: RaceTabProps) {
   // Energy recovery system with improved speed and proper timing
   useEffect(() => {
     const baseRecoveryTime = 10 * 60 * 1000 // 10 minutes base
-    const speedBonus = getRecoverySpeed()
+    const speedBonus = getRecoverySpeed(upgrades)
     const actualRecoveryTime = baseRecoveryTime * (1 - speedBonus / 100)
 
     // Calculate time until next recovery based on last prediction
@@ -704,7 +661,7 @@ export default function RaceTab({ onDataUpdate }: RaceTabProps) {
     // Set initial timeout for the next recovery
     const initialTimeout = setTimeout(() => {
       setPredictionsRemaining((prev) => {
-        const maxEnergy = getMaxEnergy()
+        const maxEnergy = getMaxEnergy(upgrades)
         if (prev < maxEnergy) {
           return prev + 1
         }
@@ -714,7 +671,7 @@ export default function RaceTab({ onDataUpdate }: RaceTabProps) {
       // Set up regular interval after the first recovery
       const recoveryInterval = setInterval(() => {
         setPredictionsRemaining((prev) => {
-          const maxEnergy = getMaxEnergy()
+          const maxEnergy = getMaxEnergy(upgrades)
           if (prev < maxEnergy) {
             return prev + 1
           }

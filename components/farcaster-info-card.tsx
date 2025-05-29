@@ -3,7 +3,7 @@
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Smartphone, Bell, Shield } from "lucide-react"
-import { useFarcasterContext } from "@/hooks/use-farcaster-context"
+import { useFarcasterContext } from "@/contexts/farcaster-context-provider"
 
 export function FarcasterInfoCard() {
   const { context, isLoading, isInFarcaster } = useFarcasterContext()
