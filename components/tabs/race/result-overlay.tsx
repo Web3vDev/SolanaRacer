@@ -7,6 +7,7 @@ interface ResultOverlayProps {
   priceBeforePrediction: string
   priceAfterPrediction: string
   predictionAction: "pump" | "dump" | null
+  pointsEarned?: number // New prop for points earned
 }
 
 export function ResultOverlay({
@@ -15,6 +16,7 @@ export function ResultOverlay({
   priceBeforePrediction,
   priceAfterPrediction,
   predictionAction,
+  pointsEarned = 0, // Default to 0 if not provided
 }: ResultOverlayProps) {
   return (
     <div
@@ -46,7 +48,7 @@ export function ResultOverlay({
         {/* Points */}
         {predictionResult === "correct" && (
           <div className="bg-green-400/20 rounded-lg p-4 animate-pulse">
-            <p className="text-white text-lg">+100 POINTS</p>
+            <p className="text-white text-lg">+{pointsEarned} POINTS</p>
           </div>
         )}
       </div>
