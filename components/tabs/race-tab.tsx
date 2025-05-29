@@ -69,7 +69,7 @@ export default function RaceTab({ onDataUpdate, showUpgradesModal, setShowUpgrad
   const [points, setPoints] = useState(0)
   const [predictionsRemaining, setPredictionsRemaining] = useState(10)
   const [maxPredictions, setMaxPredictions] = useState(20)
-  const [baseSuccessRate, setBaseSuccessRate] = useState(65)
+  const [baseSuccessRate, setBaseSuccessRate] = useState(0)
   const [winStreak, setWinStreak] = useState(0)
   const [totalRaces, setTotalRaces] = useState(0)
   const [lastPredictionTime, setLastPredictionTime] = useState<number>(Date.now())
@@ -179,6 +179,7 @@ export default function RaceTab({ onDataUpdate, showUpgradesModal, setShowUpgrad
   const [carMovement, setCarMovement] = useState<"pump" | "dump" | "none">("none")
   const [countdownActive, setCountdownActive] = useState(false)
   const [countdownTime, setCountdownTime] = useState(4)
+  const [pointsEarned, setPointsEarned] = useState(0)
 
   // State for badge notifications
   const [unlockedBadges, setUnlockedBadges] = useState<Badge[]>([])
@@ -588,9 +589,27 @@ export default function RaceTab({ onDataUpdate, showUpgradesModal, setShowUpgrad
         if (isCorrect) {
           // If correct prediction, make the price match the prediction
           finalDecimal = action === "pump" ? "999" : "001"
+          
+          // Calculate points with all bonuses (do this before showing overlay)
+          const basePoints = 100
+          const multiplier = getPointsMultiplier(upgrades, cars)
+          const winBonus = getWinBonus(upgrades)
+          const comboBonus = getComboBonus(upgrades, winStreak)
+
+          let totalPoints = Math.floor((basePoints + winBonus) * multiplier) + comboBonus
+
+          // Apply double points if active
+          if (doublePointsActive) {
+            totalPoints *= 2
+          }
+
+          // Set points earned for display in overlay
+          setPointsEarned(totalPoints)
         } else {
           // If wrong prediction, make the price opposite of the prediction
           finalDecimal = action === "pump" ? "001" : "999"
+          // No points earned for wrong prediction
+          setPointsEarned(0)
         }
 
         // Set the final price
@@ -609,19 +628,8 @@ export default function RaceTab({ onDataUpdate, showUpgradesModal, setShowUpgrad
         setTimeout(() => {
           // Update points if prediction is correct
           if (isCorrect) {
-            // Calculate points with all bonuses
-            const basePoints = 100
-            const multiplier = getPointsMultiplier(upgrades, cars)
-            const winBonus = getWinBonus(upgrades)
-            const comboBonus = getComboBonus(upgrades, winStreak)
-
-            let totalPoints = Math.floor((basePoints + winBonus) * multiplier) + comboBonus
-
-            // Apply double points if active
-            if (doublePointsActive) {
-              totalPoints *= 2
-            }
-
+            // Use the already calculated points (we calculated this before showing the overlay)
+            const totalPoints = pointsEarned
             const newPoints = points + totalPoints
 
             setPoints(newPoints)
@@ -826,6 +834,7 @@ export default function RaceTab({ onDataUpdate, showUpgradesModal, setShowUpgrad
           priceBeforePrediction={priceBeforePrediction}
           priceAfterPrediction={priceAfterPrediction}
           predictionAction={predictionAction}
+          pointsEarned={pointsEarned}
         />
       )}
 
